@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<List> fetchData() async {
     if (stories == 'top') {
       for (var i = top; i < top + 5; i++) {
-        if(i+1 == topStories.length){
+        if (i + 1 == topStories.length) {
           break;
         }
         final itemJson = await http.get(
@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     } else if (stories == 'new') {
       for (var i = news; i < news + 5; i++) {
-        if(i+1 == newStories.length){
+        if (i + 1 == newStories.length) {
           break;
         }
         final itemJson = await http.get(
@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     } else {
       for (var i = best; i < best + 5; i++) {
-        if(i+1 == bestStories.length){
+        if (i + 1 == bestStories.length) {
           break;
         }
         final itemJson = await http.get(
@@ -218,62 +218,61 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       body: Container(
-          child: Column(
-        children: <Widget>[
-          isReady
-              ? Expanded(
-                  child: Column(
-                  children: <Widget>[
-                    Expanded(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              launch(items[index].url);
-                            },
-                            child: Container(
-                              margin: EdgeInsets.all(10),
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  color: Color.fromRGBO(246, 246, 239, 1),
-                                  borderRadius: BorderRadius.circular(5),
-                                  border: Border.all(
-                                    width: 0.5,
-                                    color: Colors.blueGrey,
-                                  )),
-                              child: Row(
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Text(
-                                      items[index].title,
-                                      textAlign: TextAlign.start,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 17,
+        child: Column(
+          children: <Widget>[
+            isReady
+                ? Expanded(
+                    child: Column(
+                    children: <Widget>[
+                      Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap: () {
+                                launch(items[index].url);
+                              },
+                              child: Container(
+                                margin: EdgeInsets.all(10),
+                                padding: EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                    color: Color.fromRGBO(246, 246, 239, 1),
+                                    borderRadius: BorderRadius.circular(5),
+                                    border: Border.all(
+                                      width: 0.5,
+                                      color: Colors.blueGrey,
+                                    )),
+                                child: Row(
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: Text(
+                                        items[index].title,
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 17,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Container(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Text('${items[index].score}'),
-                                        Icon(
-                                          Icons.star,
-                                          semanticLabel: 'ghjk',
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                ],
+                                    Container(
+                                      child: Column(
+                                        children: <Widget>[
+                                          Text('${items[index].score}'),
+                                          Icon(
+                                            Icons.star,
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        itemCount: items.length,
+                            );
+                          },
+                          itemCount: items.length,
+                        ),
                       ),
-                    ),
-                    GestureDetector(
+                      GestureDetector(
                         onTap: () {
                           setState(() {
                             loadMore = true;
@@ -321,17 +320,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                     fontSize: 18,
                                   ),
                                 ),
-                        ))
-                  ],
-                ))
-              : Center(
-                  child: CircularProgressIndicator(
-                    valueColor: new AlwaysStoppedAnimation(
-                        Color.fromRGBO(255, 102, 0, 1)),
+                        ),
+                      ),
+                    ],
+                  ))
+                : Center(
+                    child: CircularProgressIndicator(
+                      valueColor: new AlwaysStoppedAnimation(
+                          Color.fromRGBO(255, 102, 0, 1)),
+                    ),
                   ),
-                )
-        ],
-      )),
+          ],
+        ),
+      ),
 // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
