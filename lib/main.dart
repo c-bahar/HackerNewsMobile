@@ -110,6 +110,21 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void topMenu(String str) {
+    if (isReady) {
+      items = [];
+      setState(() {
+        isReady = false;
+        stories = str;
+      });
+      fetchData().then((_) {
+        setState(() {
+          isReady = true;
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,18 +148,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           onTap: () {
                             if (stories != 'top') {
                               if (isReady) {
-                                items = [];
                                 news = 0;
                                 best = 0;
-                                setState(() {
-                                  isReady = false;
-                                  stories = 'top';
-                                });
-                                fetchData().then((_) {
-                                  setState(() {
-                                    isReady = true;
-                                  });
-                                });
+                                topMenu('top');
                               }
                             }
                           },
@@ -161,16 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               if (isReady) {
                                 top = 0;
                                 best = 0;
-                                items = [];
-                                setState(() {
-                                  stories = 'new';
-                                  isReady = false;
-                                });
-                                fetchData().then((_) {
-                                  setState(() {
-                                    isReady = true;
-                                  });
-                                });
+                                topMenu('new');
                               }
                             }
                           },
@@ -187,16 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               if (isReady) {
                                 top = 0;
                                 news = 0;
-                                items = [];
-                                setState(() {
-                                  stories = 'best';
-                                  isReady = false;
-                                });
-                                fetchData().then((_) {
-                                  setState(() {
-                                    isReady = true;
-                                  });
-                                });
+                                topMenu('best');
                               }
                             }
                           },
