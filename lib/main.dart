@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'model/models.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:async';
 
 void main() => runApp(MyApp());
 
@@ -28,15 +29,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String stories = 'top';
+  bool menuOpen = false;
   List<Item> items = [];
   bool isReady = false;
   bool loadMore = false;
   int top = 0;
   int news = 0;
   int best = 0;
+  double width1 = 10;
   List<dynamic> topStories = [];
   List<dynamic> newStories = [];
   List<dynamic> bestStories = [];
+  double _opacity = 0;
+  Color menuColor = Color.fromRGBO(255, 150, 0, 1);
 
   Future<List> fetchData() async {
     if (stories == 'top') {
@@ -125,6 +130,70 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Widget menu() {
+    return Container(
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                GestureDetector(
+                  onTap: () {
+                    if (stories != 'top') {
+                      if (isReady) {
+                        news = 0;
+                        best = 0;
+                        topMenu('top');
+                      }
+                    }
+                  },
+                  child: Text(
+                    'Top Stories',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    if (stories != 'new') {
+                      if (isReady) {
+                        top = 0;
+                        best = 0;
+                        topMenu('new');
+                      }
+                    }
+                  },
+                  child: Text(
+                    'New Stories',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    if (stories != 'best') {
+                      if (isReady) {
+                        top = 0;
+                        news = 0;
+                        topMenu('best');
+                      }
+                    }
+                  },
+                  child: Text(
+                    'Best Stories',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,82 +201,44 @@ class _MyHomePageState extends State<MyHomePage> {
         preferredSize:
             Size.fromHeight(MediaQuery.of(context).size.height * 0.08),
         child: AppBar(
-          title: Column(
-            children: <Widget>[
-              Text('Hacker News'),
-              Padding(
-                padding: EdgeInsets.only(top: 5),
-              ),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        GestureDetector(
-                          onTap: () {
-                            if (stories != 'top') {
-                              if (isReady) {
-                                news = 0;
-                                best = 0;
-                                topMenu('top');
-                              }
-                            }
-                          },
-                          child: Text(
-                            'Top Stories',
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            if (stories != 'new') {
-                              if (isReady) {
-                                top = 0;
-                                best = 0;
-                                topMenu('new');
-                              }
-                            }
-                          },
-                          child: Text(
-                            'New Stories',
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            if (stories != 'best') {
-                              if (isReady) {
-                                top = 0;
-                                news = 0;
-                                topMenu('best');
-                              }
-                            }
-                          },
-                          child: Text(
-                            'Best Stories',
-                            style: TextStyle(
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ],
-          ),
+          title: Text('Hacker News'),
           backgroundColor: Color.fromRGBO(255, 102, 0, 1),
         ),
       ),
       body: Container(
-        child: Column(
+        child: Row(
           children: <Widget>[
+            GestureDetector(
+              child: AnimatedContainer(
+                foregroundDecoration: BoxDecoration(
+                  border: Border(right: BorderSide(
+                    color: Colors.black
+                  ))
+                ),
+                duration: Duration(seconds: 2),
+                curve: Curves.fastLinearToSlowEaseIn,
+                height: MediaQuery.of(context).size.height,
+                width: width1,
+                decoration:
+                    BoxDecoration(color: menuColor),
+                child: AnimatedOpacity(
+                  curve: Curves.easeIn,
+                  duration: Duration(milliseconds: 2000),
+                  opacity: _opacity,
+                  child: menuOpen ? menu() : null,
+                ),
+              ), //menuOpen ? menu() : null,
+              onTap: () {
+                setState(() {
+                  width1 = width1 == 10
+                      ? MediaQuery.of(context).size.width * 0.35
+                      : 10;
+                  menuOpen = !menuOpen;
+                  _opacity = _opacity == 1 ? 0 : 1;
+                  menuColor = menuOpen ? Color.fromRGBO(246, 246, 239, 1) : Color.fromRGBO(255, 150, 0, 1);
+                });
+              },
+            ),
             isReady
                 ? Expanded(
                     child: Column(
@@ -312,12 +343,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ],
                   ))
-                : Center(
-                    child: CircularProgressIndicator(
-                      valueColor: new AlwaysStoppedAnimation(
-                          Color.fromRGBO(255, 102, 0, 1)),
+                : Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: new AlwaysStoppedAnimation(
+                            Color.fromRGBO(255, 102, 0, 1)),
+                      ),
                     ),
-                  ),
+                  )
           ],
         ),
       ),
