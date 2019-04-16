@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'model/models.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:async';
 
 void main() => runApp(MyApp());
 
@@ -28,108 +25,47 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String stories = 'top';
+  static Categories ctg = new Categories();
+  Data data = new Data(ctg);
+  
   bool menuOpen = false;
-  List<Item> items = [];
   bool isReady = false;
   bool loadMore = false;
-  int top = 0;
-  int news = 0;
-  int best = 0;
   double width1 = 10;
-  List<dynamic> topStories = [];
-  List<dynamic> newStories = [];
-  List<dynamic> bestStories = [];
   double _opacity = 0;
   Color menuColor = Color.fromRGBO(255, 150, 0, 1);
 
-  Future<List> fetchData() async {
-    if (stories == 'top') {
-      for (var i = top; i < top + 5; i++) {
-        if (i + 1 == topStories.length) {
-          break;
-        }
-        final itemJson = await http.get(
-            'https://hacker-news.firebaseio.com/v0/item/${topStories[i]}.json?print=pretty');
-        Map data = jsonDecode(itemJson.body);
-        Item item = Item.fromJson(data);
-        items.add(item);
-      }
-    } else if (stories == 'new') {
-      for (var i = news; i < news + 5; i++) {
-        if (i + 1 == newStories.length) {
-          break;
-        }
-        final itemJson = await http.get(
-            'https://hacker-news.firebaseio.com/v0/item/${newStories[i]}.json?print=pretty');
-        Map data = jsonDecode(itemJson.body);
-        Item item = Item.fromJson(data);
-        items.add(item);
-        //var item1 = Item.fromJson(item);
-      }
-    } else {
-      for (var i = best; i < best + 5; i++) {
-        if (i + 1 == bestStories.length) {
-          break;
-        }
-        final itemJson = await http.get(
-            'https://hacker-news.firebaseio.com/v0/item/${bestStories[i]}.json?print=pretty');
-        Map data = jsonDecode(itemJson.body);
-        Item item = Item.fromJson(data);
-        items.add(item);
-        //var item1 = Item.fromJson(item);
-      }
-    }
-    return items;
-  }
-
-  Future<List> fetchOtherCategories() async {
-    final newStoriesJson = await http.get(
-        'https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty');
-    var newstory = json.decode(newStoriesJson.body);
-    newStories = newstory;
-    final bestStoriesJson = await http.get(
-        'https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty');
-    var beststory = json.decode(bestStoriesJson.body);
-    bestStories = beststory;
-  }
-
-  Future<void> fetchTop() async {
-    final topStoriesJson = await http.get(
-        'https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty');
-    var topstory = json.decode(topStoriesJson.body);
-    topStories = topstory;
-  }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    fetchTop().then((_) {
-      fetchData().then((_) {
+    ctg.fetchTop().then((_) {
+      data.fetchData().then((_) {
         setState(() {
           isReady = true;
         });
       });
-      fetchOtherCategories();
+      ctg.fetchBest();
+      ctg.fetchNew();
     });
   }
 
   void topMenu(String str) {
     if (isReady) {
-      items = [];
+      data.items = [];
       setState(() {
         isReady = false;
-        stories = str;
+        data.stories = str;
       });
-      fetchData().then((_) {
+      data.fetchData().then((_) {
         setState(() {
           isReady = true;
         });
       });
     }
   }
-
+  
   Widget menu() {
     return Container(
       child: Row(
@@ -140,10 +76,10 @@ class _MyHomePageState extends State<MyHomePage> {
               children: <Widget>[
                 GestureDetector(
                   onTap: () {
-                    if (stories != 'top') {
+                    if (data.stories != 'top') {
                       if (isReady) {
-                        news = 0;
-                        best = 0;
+                        data.news = 0;
+                        data.best = 0;
                         topMenu('top');
                       }
                     }
@@ -155,10 +91,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    if (stories != 'new') {
+                    if (data.stories != 'new') {
                       if (isReady) {
-                        top = 0;
-                        best = 0;
+                        data.top = 0;
+                        data.best = 0;
                         topMenu('new');
                       }
                     }
@@ -170,10 +106,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    if (stories != 'best') {
+                    if (data.stories != 'best') {
                       if (isReady) {
-                        top = 0;
-                        news = 0;
+                        data.top = 0;
+                        data.news = 0;
                         topMenu('best');
                       }
                     }
@@ -249,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           itemBuilder: (context, index) {
                             return GestureDetector(
                               onTap: () {
-                                launch(items[index].url);
+                                launch(data.items[index].url);
                               },
                               child: Container(
                                 margin: EdgeInsets.all(10),
@@ -265,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   children: <Widget>[
                                     Expanded(
                                       child: Text(
-                                        items[index].title,
+                                        data.items[index].title,
                                         textAlign: TextAlign.start,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w500,
@@ -276,7 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     Container(
                                       child: Column(
                                         children: <Widget>[
-                                          Text('${items[index].score}'),
+                                          Text('${data.items[index].score}'),
                                           Icon(
                                             Icons.star,
                                           ),
@@ -288,7 +224,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             );
                           },
-                          itemCount: items.length,
+                          itemCount: data.items.length,
                         ),
                       ),
                       GestureDetector(
@@ -297,23 +233,23 @@ class _MyHomePageState extends State<MyHomePage> {
                             loadMore = true;
                           });
                           print('clicked');
-                          if (stories == 'top') {
-                            top = top + 5;
-                            fetchData().then((_) {
+                          if (data.stories == 'top') {
+                            data.top = data.top + 5;
+                            data.fetchData().then((_) {
                               setState(() {
                                 loadMore = false;
                               });
                             });
-                          } else if (stories == 'new') {
-                            news = news + 5;
-                            fetchData().then((_) {
+                          } else if (data.stories == 'new') {
+                           data.news = data.news + 5;
+                            data.fetchData().then((_) {
                               setState(() {
                                 loadMore = false;
                               });
                             });
                           } else {
-                            best = best + 5;
-                            fetchData().then((_) {
+                            data.best = data.best + 5;
+                            data.fetchData().then((_) {
                               setState(() {
                                 loadMore = false;
                               });
